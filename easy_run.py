@@ -8,7 +8,7 @@ from todoist_api_python.api import TodoistAPI
 from requests.auth import HTTPDigestAuth
 from datetime import datetime, timezone, timedelta
 import time
-import dbm
+import pickle
 from random import randint
 
 # Load configuration files and creates a list of course_ids
@@ -36,7 +36,8 @@ def main():
     run_quiet = args.q
 
     global db
-    db = dbm.open('sync_data', 'c')
+    with open('sync_db.pkl', 'rb') as f:
+        db = pickle.load(f)
 
     print(f"  {'#'*52}")
     print(" #     Canvas-Assignments-Transfer-For-Todoist     #")
@@ -52,6 +53,9 @@ def main():
     create_todoist_projects()
     transfer_assignments_to_todoist()
     canvas_assignment_stats()
+    
+    with open('sync_db.pkl', 'wb') as f:
+        pickle.dump(db, f)
     print("Done!")
     print(db)
 
@@ -171,6 +175,7 @@ def select_courses():
                 for course_id in course_ids:
                     if db.get(str(course_id)) is None:
                         db[str(course_id)] = []
+
                 for course in response.json():
                     courses_id_name_dict[course.get("id", None)] = re.sub(
                         r"[^-a-zA-Z0-9._\s]", "", course.get("name", "")
