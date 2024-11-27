@@ -202,8 +202,8 @@ def select_courses():
 
     # Add course id's to database.
     for course_id in course_ids:
-        if db.get(course_id) is None:
-            db[course_id] = []
+        if db.get(str(course_id)) is None:
+            db[str(course_id)] = []
 
     # write course ids to config.json
     config["courses"] = course_ids
@@ -288,7 +288,7 @@ def transfer_assignments_to_todoist():
         is_synced = True
         in_db = False
 
-        if assignment['name'] in db[assignment["course_id"]]:
+        if assignment['name'] in db[str(assignment["course_id"])]:
             in_db = True
 
         for task in todoist_tasks:
@@ -376,7 +376,7 @@ def transfer_assignments_to_todoist():
         if not is_added and not in_db:
             if assignment["submission"]["workflow_state"] == "unsubmitted":
                 print(f"Adding assignment {course_name}: {assignment['name']}")
-                db[assignment["course_id"]].append(assignment['name'])
+                db[str(assignment["course_id"])].append(assignment['name'])
                 add_new_task(assignment, project_id)
                 new_added += 1
                 request_count += 1
