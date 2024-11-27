@@ -8,6 +8,7 @@ from todoist_api_python.api import TodoistAPI
 from requests.auth import HTTPDigestAuth
 from datetime import datetime, timezone, timedelta
 import time
+import dbm
 from random import randint
 
 # Load configuration files and creates a list of course_ids
@@ -25,6 +26,7 @@ max_added = 250  # Maximum number of assignments to add to Todoist at once. Todo
 limit_reached = False  # Global var used to terminate early if limit is reached or API returns an error.
 
 run_quiet = False
+db = {}
 
 def main():
     parser = argparse.ArgumentParser()
@@ -32,6 +34,10 @@ def main():
     args = parser.parse_args()
     global run_quiet
     run_quiet = args.q
+
+    global db
+    db = dbm.open('sync_data', 'c')
+
     print(f"  {'#'*52}")
     print(" #     Canvas-Assignments-Transfer-For-Todoist     #")
     print(f"{'#'*52}\n")
@@ -193,6 +199,11 @@ def select_courses():
         )
     )
 
+    # Add course id's to database.
+    for course_id in course_ids:
+        if db.get(course_id) is None:
+            db[course_id] = []
+
     # write course ids to config.json
     config["courses"] = course_ids
     with open("config.json", "w") as outfile:
@@ -274,6 +285,10 @@ def transfer_assignments_to_todoist():
 
         is_added = False
         is_synced = True
+        in_db = False
+
+        if assignment['name'] in db[assignment["course_id"]]:
+            in_db = True
 
         for task in todoist_tasks:
             # Check if assignment is already added to Todoist with same name and within the same Project
@@ -357,7 +372,7 @@ def transfer_assignments_to_todoist():
                 excluded += 1
                 break
         # Add assignment to Todoist if not already added - Ignore assignments that are already submitted
-        if not is_added:
+        if not is_added and not in_db:
             if assignment["submission"]["workflow_state"] == "unsubmitted":
                 print(f"Adding assignment {course_name}: {assignment['name']}")
                 add_new_task(assignment, project_id)
