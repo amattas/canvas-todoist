@@ -30,6 +30,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-q', action='store_true', help='Supress prompt to load classes')
     args = parser.parse_args()
+    global run_quiet
     run_quiet = args.q
     print(f"  {'#'*52}")
     print(" #     Canvas-Assignments-Transfer-For-Todoist     #")
