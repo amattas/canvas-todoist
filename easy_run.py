@@ -376,6 +376,7 @@ def transfer_assignments_to_todoist():
         if not is_added and not in_db:
             if assignment["submission"]["workflow_state"] == "unsubmitted":
                 print(f"Adding assignment {course_name}: {assignment['name']}")
+                db[assignment["course_id"]].append(assignment['name'])
                 add_new_task(assignment, project_id)
                 new_added += 1
                 request_count += 1
