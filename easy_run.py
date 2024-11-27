@@ -3,6 +3,7 @@
 import requests
 import re
 import json
+import argparse
 from todoist_api_python.api import TodoistAPI
 from requests.auth import HTTPDigestAuth
 from datetime import datetime, timezone, timedelta
@@ -23,8 +24,13 @@ sleep_delay_max = 2500  # Maximum number of milliseconds to sleep for
 max_added = 250  # Maximum number of assignments to add to Todoist at once. Todoist API limit is 450 requests per 15 minutes and you can quickly hit this if adding a massive number of assignments.
 limit_reached = False  # Global var used to terminate early if limit is reached or API returns an error.
 
+run_quiet = False
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-q', action='store_true', help='Supress prompt to load classes')
+    args = parser.parse_args()
+    run_quiet = args.q
     print(f"  {'#'*52}")
     print(" #     Canvas-Assignments-Transfer-For-Todoist     #")
     print(f"{'#'*52}\n")
@@ -142,10 +148,13 @@ def select_courses():
             exit()
         # Note that only courses in "Active" state are returned
         if config["courses"]:
-            use_previous_input = input(
-                "You have previously selected courses. Would you like to use the courses selected last time? (y/n) "
-            )
-            print("")
+            if run_quiet:
+                use_previous_input = "y"
+            else:
+                use_previous_input = input(
+                    "You have previously selected courses. Would you like to use the courses selected last time? (y/n) "
+                )
+                print("")
             if use_previous_input == "y" or use_previous_input == "Y":
                 course_ids.extend(
                     list(map(lambda course_id: int(course_id), config["courses"]))
