@@ -60,7 +60,6 @@ def main():
     with open('sync_db.pkl', 'wb') as f:
         pickle.dump(db, f)
     print("Done!")
-    print(db)
 
 
 # Function for Yes/No response prompts during setup
