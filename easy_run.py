@@ -53,6 +53,7 @@ def main():
     transfer_assignments_to_todoist()
     canvas_assignment_stats()
     print("Done!")
+    print(db)
 
 
 # Function for Yes/No response prompts during setup
