@@ -36,8 +36,11 @@ def main():
     run_quiet = args.q
 
     global db
-    with open('sync_db.pkl', 'rb') as f:
-        db = pickle.load(f)
+    try:
+        with open('sync_db.pkl', 'rb') as f:
+            db = pickle.load(f)
+    except FileNotFoundError:
+        db = { }
 
     print(f"  {'#'*52}")
     print(" #     Canvas-Assignments-Transfer-For-Todoist     #")
@@ -53,7 +56,7 @@ def main():
     create_todoist_projects()
     transfer_assignments_to_todoist()
     canvas_assignment_stats()
-    
+
     with open('sync_db.pkl', 'wb') as f:
         pickle.dump(db, f)
     print("Done!")
