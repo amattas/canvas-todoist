@@ -167,6 +167,10 @@ def select_courses():
                 course_ids.extend(
                     list(map(lambda course_id: int(course_id), config["courses"]))
                 )
+                # Add course id's to database.
+                for course_id in course_ids:
+                    if db.get(str(course_id)) is None:
+                        db[str(course_id)] = []
                 for course in response.json():
                     courses_id_name_dict[course.get("id", None)] = re.sub(
                         r"[^-a-zA-Z0-9._\s]", "", course.get("name", "")
